@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+    <style>
+        body {
+            background-color: #2C3930;
+            color: #DCD7C9;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #3F4F44;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px #A27B5C;
+        }
+        input, select, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #A27B5C;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Crop Yield Prediction</h2>
+        <form id="predictionForm">
+            <label for="cropType">Crop Type:</label>
+            <select id="cropType" name="cropType">
+                <option value="0">Wheat</option>
+                <option value="1">Rice</option>
+                <option value="2">Maize</option>
+                <option value="3">Sugarcane</option>
+                <option value="4">Onion</option>
+            </select>
+
+            <label for="soilType">Soil Type:</label>
+            <select id="soilType" name="soilType">
+                <option value="0">Black</option>
+                <option value="1">Red</option>
+                <option value="2">Laterite</option>
+            </select>
+
+            <label for="nitrogen">Nitrogen (kg/ha):</label>
+            <input type="number" id="nitrogen" name="nitrogen" min="50" max="250" required>
+
+            <label for="phosphorus">Phosphorus (kg/ha):</label>
+            <input type="number" id="phosphorus" name="phosphorus" min="10" max="100" required>
+
+            <label for="temperature">Temperature (°C):</label>
+            <input type="number" id="temperature" name="temperature" min="10" max="40" step="0.1" required>
+
+            <label for="humidity">Humidity (%):</label>
+            <input type="number" id="humidity" name="humidity" min="40" max="90" step="0.1" required>
+
+            <label for="pesticides">Pesticides (kg/ha):</label>
+            <input type="number" id="pesticides" name="pesticides" min="0" max="10" step="0.1" required>
+
+            <label for="rainfall">Rainfall (mm/year):</label>
+            <input type="number" id="rainfall" name="rainfall" min="500" max="2500" required>
+
+            <button type="button" onclick="predictYield()">Predict Yield</button>
+        </form>
+        <h3 id="result"></h3>
+    </div>
+
+    <script>
+        function predictYield() {
+            const formData = new FormData(document.getElementById('predictionForm'));
+            const data = Object.fromEntries(formData.entries());
+
+            for (let key in data) {
+                data[key] = parseFloat(data[key]); 
+            }
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerText = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('result').innerText = `Predicted Crop Yield: ${data.yield} kg/ha`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
